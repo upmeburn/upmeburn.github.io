@@ -234,6 +234,24 @@ a {
     transition: all 0.2s ease-in-out;
 }
 
+.button-link-light {
+    color: #ffffff;
+}
+
+.button-link-light:hover {
+    color: #ffd95b;
+    transition: all 0.2s ease-in-out;
+}
+
+.button-link-light svg.bi-box-arrow-up-right path {
+    fill: #ffffff;    
+}
+
+.button-link-light:hover svg.bi-box-arrow-up-right path {
+    fill: #ffd95b;
+    transition: all 0.2s ease-in-out;
+}
+
 .alignclass {
     display: flex;
     justify-content: center;
