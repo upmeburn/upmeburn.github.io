@@ -25,6 +25,11 @@ $(window).bind("load", function() {
     ];
 
     let ssc;
+
+    let hiveCoinGeckoAPI = "https://api.coingecko.com/api/v3/simple/price?ids=hive&vs_currencies=usd";
+    let hiveMessariAPI = "https://data.messari.io/api/v1/assets/hive/metrics";
+    let hiveCoinCapAPI = "https://api.coincap.io/v2/assets/hive-blockchain";
+    let hiveCryptoCompareAPI = "https://min-api.cryptocompare.com/data/price?fsym=HIVE&tsyms=USD";
     
     async function checkHiveNodeStatus(nodeUrl, statusElement) {
         try 
@@ -328,9 +333,7 @@ $(window).bind("load", function() {
 
 
     function dec(val) {
-
         return Math.floor(val * 1000) / 1000;
-
     }
 
     async function getHistory () {
@@ -663,11 +666,14 @@ $(window).bind("load", function() {
         try
         {
             const res = await ssc.find("market", "metrics", { symbol: { "$in": [...symbols] } }, 1000, 0, []);            
-            const { data } = await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=hive&vs_currencies=usd");
+            //const { data } = await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=hive&vs_currencies=usd");
+            
             var UPME = res.find(el => el.symbol === "UPME");
             var WINEX = res.find(el => el.symbol === "WINEX");
+
+            let hiveUSDPrice = await getHiveUSD();  
             return {
-                HIVE: data.hive.usd,
+                HIVE: hiveUSDPrice,
                 UPME,
                 WINEX
             }
@@ -677,6 +683,96 @@ $(window).bind("load", function() {
             console.log("Error at getMarket : ", error);
         }
     };
+
+    // Check With USD Start Here
+
+    async function getHiveUSD () {
+        var hiveUSD = 0.0;
+        try
+        {
+            hiveUSD = await getCryptoComparePrice();
+            if(hiveUSD <= 0)
+            {
+                hiveUSD = await getCoinGeckoPrice();
+                if(hiveUSD <= 0)
+                {
+                    hiveUSD = await getCoinCapPrice();
+                    if(hiveUSD <= 0)
+                    {
+                        hiveUSD = await getMessariPrice();
+                    }
+                }
+            }
+            return hiveUSD;
+        }
+        catch (error)
+        {
+            console.log("Error at getHiveUSD() : ", error);
+            return hiveUSD;
+        }
+    };
+    
+    async function getCoinGeckoPrice () {
+        var hPrice = 0.0;
+        try
+        {
+            const { data } = await axios.get(hiveCoinGeckoAPI);
+            hPrice = data.hive.usd;            
+            return hPrice;
+        }
+        catch (error)
+        {
+            console.log("Error at getCoinGeckoPrice() : ", error);
+            return hPrice;
+        }
+    };
+    
+    async function getMessariPrice () {
+        var hPrice = 0.0;
+        try
+        {
+            const { data } = await axios.get(hiveMessariAPI);
+            hPrice = data.data.market_data.price_usd;            
+            return hPrice;
+        }
+        catch (error)
+        {
+            console.log("Error at getMessariPrice() : ", error);
+            return hPrice;
+        }
+    };
+    
+    async function getCoinCapPrice () {
+        var hPrice = 0.0;
+        try
+        {
+            const { data } = await axios.get(hiveCoinCapAPI);
+            hPrice = data.data.priceUsd;            
+            return hPrice;
+        }
+        catch (error)
+        {
+            console.log("Error at getCoinCapPrice() : ", error);
+            return hPrice;
+        }
+    };
+    
+    async function getCryptoComparePrice () {
+        var hPrice = 0.0;
+        try
+        {
+            const { data } = await axios.get(hiveCryptoCompareAPI);
+            hPrice = data.USD;            
+            return hPrice;
+        }
+        catch (error)
+        {
+            console.log("Error at getCryptoComparePrice() : ", error);
+            return hPrice;
+        }
+    };
+  
+    // Check With USD End Here
 
     async function refresh () {
         try
