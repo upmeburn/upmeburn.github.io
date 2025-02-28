@@ -17,8 +17,7 @@ $(window).bind("load", function() {
     ];
 
     var he_rpc_nodes = [
-        "https://engine.rishipanthee.com", 
-		"https://ha.herpc.dtools.dev", 
+        "https://enginerpc.com", 
 		"https://api.hive-engine.com",
 		"https://api.primersion.com",
 		"https://herpc.actifit.io"
